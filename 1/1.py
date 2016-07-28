@@ -2,42 +2,44 @@
 from collections import namedtuple
 import glob
 import itertools
-import operator
-
-
-frame = """\
-      ####     
-   #########   
-  ###########  
- ############# 
- ############# 
-############## 
-######   ######
-######   ######
-######   ######
- ##############
- ############# 
- ############# 
-  ###########  
-   #########   
-     ####      
-"""
+import textwrap
 
 
 def main():
-    # Print a number spiral
-    #for row in spiral(range(1, 15 * 14 + 1)):
-    #    print(' '.join('{:3}'.format(i.value) for i in row))
-
     paths = sorted(glob.glob('images/*.png'))
+    spiral_numbers = spiral(range(1, len(paths) + 1))
+    paths_order = {}
+    for path, spiral_number in zip(paths, itertools.chain.from_iterable(spiral_numbers)):
+        if not spiral_number.is_prime:
+            paths_order[spiral_number.value] = path
+    sorted_paths = (path for _, path in sorted(paths_order.items()))
+
+    frame = textwrap.dedent("""\
+          ####     
+       #########   
+      ###########  
+     ############# 
+     ############# 
+    ############## 
+    ######   ######
+    ######   ######
+    ######   ######
+     ##############
+     ############# 
+     ############# 
+      ###########  
+       #########   
+         ####      
+    """)
+
     print('<table>')
-    for row in spiral(paths):
+    for line in frame.splitlines():
         print('<tr>')
-        for item in row:
-            if item.is_prime:
-                pass
+        for char in line:
+            if char == '#':
+                print('<td style="padding: 0;"><img src="{}"></td>'.format(next(sorted_paths)))
             else:
-                print('<td style="padding: 0;"><img src="{}"></td>'.format(item.value))
+                print('<td style="padding: 0;">&nbsp;</td>')
         print('</tr>')
     print('</table>')
 
